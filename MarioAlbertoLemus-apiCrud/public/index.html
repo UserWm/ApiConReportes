@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View</title>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <label for="categoria">Categoria:</label>
+            <input type="text" class="form-control" id="categoria" placeholder="Ingrese categoria">
+        </div>
+        <div>
+            <label for="">Existencias mayores que:</label>
+            <input type="number" class="form-control" id="minExistencia" placeholder="Ingrese existencia mayor e igual">
+        </div>
+        <button id="generarReporte">generar Repote</button>
+        <div id="productos"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/producto')
+            .then(res => res.json())
+            .then(productos => {
+                const productoElm = document.getElementById('productos')
+                productos.forEach(producto => {
+                    const productosD = document.createElement('div')
+                    productosD.classList.add('producto')
+                    const productoImg = document.createElement('img')
+                    productoImg.src = `/uploads/${producto.imagen}`
+                    productoImg.alt = producto.producto
+                    productoElm.appendChild(productoImg)
+                    
+                    const productoInfo = document.createElement('div')
+                    productoInfo.classList.add('Producto-info')
+                    productoInfo.innerHTML = `
+                        <h2>${producto.producto}</h2>
+                        <p>${producto.categoria}</p>
+                        <p>${producto.existencia}</p>
+                        <p>${producto.precio.toFixed(2)}</p>
+                    `
+                    productoElm.appendChild(productoInfo)
+                    productoElm.appendChild(productosD)
+                })
+            })
+            .catch(error => console.error('Error:', error));
+            
+                document.getElementById('generarReporte').addEventListener('click', function () {
+                    const categoria = document.getElementById('categoria').value
+                    const minExistencia = document.getElementById('minExistencia').value
+                    const queryParams = new URLSearchParams()
+
+                    if (categoria) {
+                        queryParams.append('categoria', categoria)
+                    }
+                    if (minExistencia) {
+                        queryParams.append('minExistencia', minExistencia)
+                    }
+                    
+                    fetch(`/api/producto/reporte?${queryParams.toString()}`)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href=url
+                        a.download=`Reporte_productos_${new Date().toLocaleDateString()}.pdf`
+                        document.body.appendChild(a)
+                        a.click()
+                        a.remove()
+                    })
+                    .catch(error => console.error('Error', error))
+                })
+   
+        })
+    </script>
+</body>
+</html>
