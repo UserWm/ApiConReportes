@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        main { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        #productos { display: flex; width: 100%; }
+        .producto { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+        .image { width: 300px; }
+        .Producto-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; }
+      </style>
+</head>
+<body>
+    <main>
+        <h1>Lista de productos</h1>
+        <div class="form-group">
+            <label for="categoria">Categoria:</label>
+            <input type="text" class="form-control" id="categoria" placeholder="Ingrese categoria" />
+        </div>
+        <div class="form-group">
+            <label for="minExistencia">Existencia mayores que:</label>
+            <input type="number" class="form-control" id="minExistencia" placeholder="Ingrese existencia mayor e igual que" />
+        </div>
+        <button id="generarReporte" >Generar reporte</button>
+        <div id="productos"></div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', ()=>{
+            fetch('/api/producto')
+            .then(res => res.json())
+            .then(productos => {
+                const productosD = document.getElementById('productos')
+                productos.forEach(producto => {
+                    const productoD = document.createElement('div')
+                    productoD.classList.add('producto')
+                    
+                    const productoImg = document.createElement('img')
+                    productoImg.classList.add('image')
+                    productoImg.src = `/uploads/${producto.imagen}`
+                    productoImg.alt = producto.producto
+                    productoD.appendChild(productoImg)
+                    
+                    const productosInfo = document.createElement('div')
+                    productosInfo.classList.add('Producto-info')
+                    productosInfo.innerHTML = `
+                    <h2>${producto.producto}</h2>
+                    <p>${producto.categoria}</p>
+                    <p>${producto.existencia}</p>
+                    <p>${producto.precio.toFixed(2)}</p>
+                    `
+                    productoD.appendChild(productosInfo)
+                    productosD.appendChild(productoD)
+                });
+            })
+            .catch(err => console.error('Error: ' ,err))
+        })
+
+        document.getElementById('generarReporte').addEventListener('click', function(){
+            const categoria = document.getElementById('categoria').value
+            const minExistencia = document.getElementById('minExistencia').value
+
+            const queryParams = new URLSearchParams()
+
+            if (categoria) {
+                queryParams.append('categoria', categoria)
+            }
+            if (minExistencia) {
+                queryParams.append('minExistencia', minExistencia)
+            }
+
+            fetch(`/api/producto/reporte?${queryParams.toString()}`)
+            .then(res => res.blob())
+            .then( blob => {
+                const url = window.URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `Reporte_Productos_${new Date().toLocaleDateString()}.pdf`
+                document.body.appendChild(a)
+                a.click()
+                a.remove()
+            })
+            .catch(err => console.error('Error: ' ,err))
+        })
+    </script>
+</body>
+</html>
