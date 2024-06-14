@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .productos {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .img {
+        margin: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .Product-info {
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lista de productos</h1>
+    <div class="form-group">
+      <label for="categoria">Categoria:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="categoria"
+        placeholder="Ingrese categoria"
+      />
+    </div>
+    <div class="form-group">
+      <label for="minExistencia">Existencia mayores que:</label>
+      <input
+        type="number"
+        class="form-control"
+        id="minExistencia"
+        placeholder="Ingrese Existencia mayor e igual que"
+      />
+    </div>
+
+    <button id="generarReporte">Generar PDF</button>
+    <div id="productos"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        fetch("/api/producto")
+          .then((response) => response.json())
+          .then((productos) => {
+            const productosD = document.getElementById("productos");
+            productos.forEach((producto) => {
+              const productoD = document.createElement("div");
+              productoD.classList.add("producto");
+
+              const productoImg = document.createElement("img");
+              productoImg.src = `/uploads/${producto.imagen}`;
+              productoImg.alt = producto.producto;
+              productosD.appendChild(productoImg);
+
+              const productoInfo = document.createElement("div");
+              productoInfo.classList.add("Producto-info");
+              productoInfo.innerHTML = `<h2>${producto.producto}</h2>
+              <h2>${producto.categoria}</h2>
+              <h2>${producto.existencia}</h2>
+              <h2>${producto.precio.toFixed(2)}</h2>`;
+
+              productoD.appendChild(productoInfo);
+              productosD.appendChild(productoD);
+            });
+          })
+          .catch((error) => console.error("error", error));
+      });
+
+      document
+        .getElementById("generarReporte")
+        .addEventListener("click", function () {
+          const categoria = document.getElementById("categoria").value;
+          const minExistencia = document.getElementById("minExistencia").value;
+
+          const queryParams = new URLSearchParams();
+          if (categoria) {
+            queryParams.append("categoria", categoria);
+          }
+          if (minExistencia) {
+            queryParams.append("minExistencia", minExistencia);
+          }
+
+          fetch(`/api/producto/reporte?${queryParams.toString()}`)
+            .then((response) => response.blob())
+            .then((blob) => {
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `Reporte_Productos_${new Date().toLocaleDateString()}.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+            })
+            .catch((error) => console.error("Error", error));
+        });
+    </script>
+  </body>
+</html>
