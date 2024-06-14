@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Productos</title>
+    <link rel="stylesheet" href="admin.css"> <!-- Agrega un archivo CSS externo para el estilo -->
+</head>
+<body>
+    <div class="container">
+        <h1>Administrar Productos</h1>
+        <!-- Formulario para agregar un nuevo producto -->
+        <form id="add-product-form">
+            <h2>Agregar Producto</h2>
+            <div>
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div>
+                <label for="category">Categoría:</label>
+                <input type="text" id="category" name="category" required>
+            </div>
+            <div>
+                <label for="stock">Stock:</label>
+                <input type="number" id="stock" name="stock" required>
+            </div>
+            <div>
+                <label for="price">Precio:</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+            <div>
+                <label for="image">Imagen:</label>
+                <input type="file" id="image" name="image" accept="image/*">
+            </div>
+            <button type="submit">Agregar Producto</button>
+        </form>
+        
+        <!-- Lista de productos existentes -->
+        <div id="product-list"></div>
+    </div>
+
+    <script>
+        // Función para obtener y mostrar los productos
+        async function fetchProducts() {
+            try {
+                const response = await fetch('/api/products'); // Ruta de tu API
+                const products = await response.json();
+                const productList = document.getElementById('product-list');
+
+                // Construye el HTML para mostrar los productos
+                let html = '<h2>Lista de Productos</h2><ul>';
+                products.forEach(product => {
+                    html += `<li>
+                                <img src="${product.image}" alt="${product.name}">
+                                <div>
+                                    <h3>${product.name}</h3>
+                                    <p>Categoría: ${product.category}</p>
+                                    <p>Stock: ${product.stock}</p>
+                                    <p>Precio: ${product.price}</p>
+                                    <button onclick="editProduct('${product._id}')">Editar</button>
+                                    <button onclick="deleteProduct('${product._id}')">Eliminar</button>
+                                </div>
+                             </li>`;
+                });
+                html += '</ul>';
+
+                // Agrega el HTML al contenedor de la lista de productos
+                productList.innerHTML = html;
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        }
+
+        // Función para agregar un nuevo producto
+        async function addProduct(event) {
+            event.preventDefault();
+            const form = document.getElementById('add-product-form');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    alert('Producto agregado exitosamente');
+                    form.reset();
+                    fetchProducts(); // Actualiza la lista de productos después de agregar uno nuevo
+                } else {
+                    const data = await response.json();
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error adding product:', error);
+            }
+        }
+
+        // Función para eliminar un producto
+        async function deleteProduct(productId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+                try {
+                    const response = await fetch(`/api/products/${productId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        alert('Producto eliminado exitosamente');
+                        fetchProducts(); // Actualiza la lista de productos después de eliminar uno
+                    } else {
+                        const data = await response.json();
+                        alert(data.message);
+                    }
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                }
+            }
+        }
+
+        // Función para editar un producto
+        function editProduct(productId) {
+            // Redirige a la página de edición de producto, pasando el ID del producto como parámetro en la URL
+            window.location.href = `/edit-product.html?id=${productId}`;
+        }
+
+        // Llama a la función para obtener y mostrar los productos cuando se carga la página
+        window.onload = fetchProducts;
+
+        // Agrega un evento de submit al formulario para agregar un producto
+        document.getElementById('add-product-form').addEventListener('submit', addProduct);
+    </script>
+</body>
+</html>
