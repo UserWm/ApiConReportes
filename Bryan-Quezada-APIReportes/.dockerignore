@@ -1,0 +1,16 @@
+# Ignore node_modules directory
+node_modules
+
+# Ignore npm debug log
+npm-debug.log
+
+# Ignore application logs
+logs
+
+# Ignore environment-specific files
+.env
+.env.*
+
+# Ignore any build artifacts
+build
+dist
