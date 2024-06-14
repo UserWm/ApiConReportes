@@ -1,0 +1,13 @@
+#products {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.product-info {
+  width: 300px;
+}
+
+.product-info img {
+  width: 100%;
+}
