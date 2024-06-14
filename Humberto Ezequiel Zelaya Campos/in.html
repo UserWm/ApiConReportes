@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Reporte de productos</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Productos</th>
+                <th>Categorias</th>
+                <th>Existencias</th>
+                <th>precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${productos.map(producto => `
+                <tr>
+                    <td></td>
+                    <td>producto.producto</td>
+                    <td>producto.Categorias</td>
+                    <td>producto.Existencias</td>
+                    <td>producto.precio.tofixed(2)</td>
+                </tr>
+                `)}
+        </tbody>
+    </table>
+</body>
+</html>
