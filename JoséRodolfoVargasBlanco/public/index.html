@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Mis productos</title>
+    <style>
+        .card-columns {
+            column-count: 3;
+        }
+
+        .card {
+            display: inline-block;
+            margin: 0.5rem;
+        }
+
+        .card img {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="my-4">Lista de Productos</h1>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="categoria">Categoría:</label>
+                    <input type="text" class="form-control" id="categoria" placeholder="Ingrese categoria">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="minExistencia">Existencia:</label>
+                    <input type="number" class="form-control" id="minExistencia" placeholder="Ingrese existencia mayor e igual">
+                </div>
+            </div>
+        </div>
+
+        <button id="generarReporte" class="btn btn-primary mb-4">Generar Reporte</button>
+
+        <div id="productos" class="card-columns justify-content-center"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch para obtener la lista de productos
+            fetch('/api/productos')
+                .then(response => response.json())
+                .then(productos => {
+                    const productosDiv = document.getElementById('productos');
+                    productos.forEach(producto => {
+                        const productoDiv = document.createElement('div');
+                        productoDiv.classList.add('card');
+
+                        const productoImg = document.createElement('img');
+                        productoImg.src = `/uploads/${producto.imagen}`;
+                        productoImg.alt = producto.producto;
+                        productoImg.classList.add('card-img-top');
+                        productoDiv.appendChild(productoImg);
+
+                        const productoInfo = document.createElement('div');
+                        productoInfo.classList.add('card-body');
+                        productoInfo.innerHTML = `
+                            <h5 class="card-title">${producto.producto}</h5>
+                            <p class="card-text">Categoría: ${producto.categoria}</p>
+                            <p class="card-text">Existencia: ${producto.existencia}</p>
+                            <p class="card-text">Precio: $${producto.precio.toFixed(2)}</p>
+                        `;
+                        productoDiv.appendChild(productoInfo);
+                        productosDiv.appendChild(productoDiv);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+
+            // Evento para generar y descargar el reporte
+            document.getElementById('generarReporte').addEventListener('click', function () {
+                const categoria = document.getElementById('categoria').value;
+                const minExistencia = document.getElementById('minExistencia').value;
+
+                const queryParams = new URLSearchParams();
+
+                if (categoria) {
+                    queryParams.append('categoria', categoria)
+                }
+                if (minExistencia) {
+                    queryParams.append('minExistencia', minExistencia)
+                }
+
+                fetch(`/api/productos/reporte?${queryParams.toString()}`)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `Reporte_Productos_${new Date().toLocaleDateString()}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url); // Liberar memoria
+                        a.remove();
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
+
