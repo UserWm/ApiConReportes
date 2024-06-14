@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Productos</title>
+    <link rel="stylesheet" href="style.css"> <!-- Archivo CSS externo para el estilo -->
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Productos</h1>
+        <div class="form-group">
+            <label for="category">Categoría:</label>
+            <input type="text" id="category" placeholder="Ingrese la Categoría" oninput="updateDownloadLink()">
+        </div>
+        <div class="form-group">
+            <label for="minStock">Existencia mayores que:</label>
+            <input type="number" id="minStock" placeholder="Ingrese la Existencia" oninput="updateDownloadLink()">
+        </div>
+        <div id="product-list"></div> <!-- Aquí se mostrarán los productos -->
+        <a id="download-link" href="#" target="_blank">Descargar Reporte en PDF</a> <!-- Enlace para descargar el reporte en PDF -->
+    </div>
+
+    <script>
+        // Función para obtener y mostrar los productos
+        async function fetchProducts() {
+            const category = document.getElementById('category').value;
+            const minStock = document.getElementById('minStock').value;
+
+            try {
+                const response = await fetch(`/api/products?category=${encodeURIComponent(category)}&minStock=${encodeURIComponent(minStock)}`); // Ruta de tu API con filtros
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta de la red');
+                }
+
+                const products = await response.json();
+                const productList = document.getElementById('product-list');
+
+                if (products.length === 0) {
+                    productList.innerHTML = '<p>No se encontraron productos.</p>';
+                    return;
+                }
+
+                // Construye el HTML para mostrar los productos
+                let html = '<ul>';
+                products.forEach(product => {
+                    html += `<li>
+                                <img src="${product.image}" alt="${product.name}">
+                                <div>
+                                    <h2>${product.name}</h2>
+                                    <p>Categoría: ${product.category}</p>
+                                    <p>Stock: ${product.stock}</p>
+                                    <p>Precio: ${product.price}</p>
+                                </div>
+                             </li>`;
+                });
+                html += '</ul>';
+
+                // Agrega el HTML al contenedor de la lista de productos
+                productList.innerHTML = html;
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                const productList = document.getElementById('product-list');
+                productList.innerHTML = '<p>Error al cargar los productos. Por favor, inténtelo de nuevo más tarde.</p>';
+            }
+        }
+
+        // Función para actualizar el enlace de descarga del reporte en PDF
+        function updateDownloadLink() {
+            const category = document.getElementById('category').value;
+            const minStock = document.getElementById('minStock').value;
+            
+            const downloadLink = document.getElementById('download-link');
+            downloadLink.href = `/api/products/reporte?category=${encodeURIComponent(category)}&minStock=${encodeURIComponent(minStock)}`;
+        }
+
+        // Llama a la función para actualizar el enlace cuando se carga la página
+        window.onload = function() {
+            fetchProducts();
+            updateDownloadLink();
+        };
+    </script>
+</body>
+</html>
