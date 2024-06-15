@@ -73,7 +73,7 @@ router.get('/reporte', async (req, res) => {
                     <td>${product.name}</td>
                     <td>${product.category}</td>
                     <td>${product.stock}</td>
-                    <td>${product.price}</td>
+                    <td>$${product.price}</td>
                     <td><img class="product-image" src="http://${req.headers.host}/${product.image}" alt="${product.name}"></td>
                 </tr>`;
         });

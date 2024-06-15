@@ -8,6 +8,7 @@
 </head>
 <body>
     <div class="container">
+        <a href="admin.html">Administrador de Productos</a>
         <h1>Lista de Productos</h1>
         <div class="form-group">
             <label for="category">Categoría:</label>
@@ -18,7 +19,7 @@
             <input type="number" id="minStock" placeholder="Ingrese la Existencia" oninput="updateDownloadLink()">
         </div>
         <div id="product-list"></div> <!-- Aquí se mostrarán los productos -->
-        <a id="download-link" href="#" target="_blank">Descargar Reporte en PDF</a> <!-- Enlace para descargar el reporte en PDF -->
+        <a id="download-link" href="#" target="_blank">Generar Reporte en PDF</a> <!-- Enlace para descargar el reporte en PDF -->
     </div>
 
     <script>
