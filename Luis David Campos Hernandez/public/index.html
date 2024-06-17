@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Productos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Lista de Productos</h1>
+    <div class="form-group">
+        <label for = "categoria">
+            categoria:
+        </label>
+        <input type="text" class="form-control" id="categoria" placeholder="Ingrese categoria">
+    </div>
+    <div class="form-group">
+        <label for = "minExistencia">
+            Existencias mayores que:
+        </label>
+        <input type="number" class="form-control" id="minExistencia" placeholder="Ingrese existencia mayor o igual">
+    </div>
+
+    <button id="generarReporte">Generar Reporte</button>
+    <div id="productos"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/productos')
+                .then(response => response.json())
+                .then(productos => {
+                    const productosDiv = document.getElementById('productos');
+                    productos.forEach(producto => {
+                        const productoDiv = document.createElement('div');
+                        productoDiv.classList.add('producto');
+
+                        const productoImg = document.createElement('img');
+                        productoImg.src = `/uploads/${producto.imagen}`;
+                        productoImg.alt = producto.producto;
+                        productoDiv.appendChild(productoImg);
+
+                        const productoInfo = document.createElement('div');
+                        productoInfo.classList.add('producto-info');
+                        productoInfo.innerHTML = `
+                            <h2>${producto.producto}</h2>
+                            <p>Categoría: ${producto.categoria}</p>
+                            <p>Existencia: ${producto.existencia}</p>
+                            <p>Precio: $${producto.precio.toFixed(2)}</p>
+                        `;
+                        productoDiv.appendChild(productoInfo);
+
+                        productosDiv.appendChild(productoDiv);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+
+                document.getElementById('generarReporte').addEventListener('click', function(){
+
+
+                    const categoria = document.getElementById('categoria').value;
+                    const minExistencia = document.getElementById('minExistencia').value;
+                    const queryParams = new URLSearchParams();
+                     if (categoria) {
+                        queryParams.append('categoria', categoria)
+
+                     }
+                     if (minExistencia){
+                        queryParams.append('minExistencia', minExistencia)
+                     }
+
+                    fetch(`/api/productos/reporte?${queryParams.toString()}`)
+                    .then(res => res.blob())
+                    .then( blob => {
+                        const url = window.URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href=url
+                        a.download= `Reporte_Productos_${new Date().toLocaleDateString()}.pdf`
+                        document.body.appendChild(a)
+                        a.click()
+                        a.remove()
+                    })
+                    .catch(error => console.error('Error', error))
+                })
+        });
+    </script>
+</body>
+</html>
