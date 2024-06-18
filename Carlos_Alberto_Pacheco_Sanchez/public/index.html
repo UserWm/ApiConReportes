@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda de Artículos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        .productos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .producto {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 23%;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        .producto img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .producto-info {
+            padding: 10px;
+        }
+
+        .producto-info h2 {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .producto-info p {
+            margin: 5px 0;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Productos</h1>
+        <div class="form-group">
+            <label for="categoria">Categoría:</label>
+            <input type="text" class="form-control" id="categoria" placeholder="Ingrese categoría">
+        </div>
+        <div class="form-group">
+            <label for="minExistencia">Existencia mayor que:</label>
+            <input type="number" class="form-control" id="minExistencia" placeholder="Ingrese existencia mayor o igual">
+        </div>
+        <button id="generarReporte">Generar Reporte</button>
+        <div id="productos" class="productos"></div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
