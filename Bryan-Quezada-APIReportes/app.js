@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
@@ -21,7 +20,7 @@ mongoose.connect((mongooseURI), {
 });
 
 // Routes
-const productsRouter = require('./routers/products'); 
+const productsRouter = require('./routes/products'); 
 app.use('/api/products', productsRouter);
 
 app.use(express.static('public'));

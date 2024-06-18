@@ -8,10 +8,12 @@
 </head>
 <body>
     <div class="container">
+        <a href="index.html">Página Principal</a>
         <h1>Administrar Productos</h1>
-        <!-- Formulario para agregar un nuevo producto -->
-        <form id="add-product-form">
-            <h2>Agregar Producto</h2>
+        <!-- Formulario para agregar o editar un producto -->
+        <form id="product-form">
+            <h2 id="form-title">Agregar Producto</h2>
+            <input type="hidden" id="product-id" name="product-id">
             <div>
                 <label for="name">Nombre:</label>
                 <input type="text" id="name" name="name" required>
@@ -32,7 +34,8 @@
                 <label for="image">Imagen:</label>
                 <input type="file" id="image" name="image" accept="image/*">
             </div>
-            <button type="submit">Agregar Producto</button>
+            <button type="submit" id="form-submit-button">Agregar Producto</button>
+            <button id="cancel-button" style="background-color: #a7283a;">Cancelar</button>
         </form>
         
         <!-- Lista de productos existentes -->
@@ -40,6 +43,16 @@
     </div>
 
     <script>
+
+        function cancel(){
+            document.getElementById('product-form').reset();
+            isEditing = false;
+        }
+
+        document.getElementById('cancel-button').addEventListener('click', cancel);
+
+        let isEditing = false;
+
         // Función para obtener y mostrar los productos
         async function fetchProducts() {
             try {
@@ -56,7 +69,7 @@
                                     <h3>${product.name}</h3>
                                     <p>Categoría: ${product.category}</p>
                                     <p>Stock: ${product.stock}</p>
-                                    <p>Precio: ${product.price}</p>
+                                    <p>Precio: $${product.price}</p>
                                     <button onclick="editProduct('${product._id}')">Editar</button>
                                     <button onclick="deleteProduct('${product._id}')">Eliminar</button>
                                 </div>
@@ -71,27 +84,60 @@
             }
         }
 
-        // Función para agregar un nuevo producto
-        async function addProduct(event) {
+        // Función para agregar o editar un producto
+        async function handleFormSubmit(event) {
             event.preventDefault();
-            const form = document.getElementById('add-product-form');
+            const form = document.getElementById('product-form');
             const formData = new FormData(form);
+            const productId = formData.get('product-id');
+
+            let url = '/api/products';
+            let method = 'POST';
+
+            if (isEditing) {
+                url += `/${productId}`;
+                method = 'PUT';
+            }
 
             try {
-                const response = await fetch('/api/products', {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method: method,
                     body: formData
                 });
+
                 if (response.ok) {
-                    alert('Producto agregado exitosamente');
+                    alert(`Producto ${isEditing ? 'actualizado' : 'agregado'} exitosamente`);
                     form.reset();
-                    fetchProducts(); // Actualiza la lista de productos después de agregar uno nuevo
+                    isEditing = false;
+                    document.getElementById('form-title').innerText = 'Agregar Producto';
+                    document.getElementById('form-submit-button').innerText = 'Agregar Producto';
+                    fetchProducts(); // Actualiza la lista de productos
                 } else {
                     const data = await response.json();
                     alert(data.message);
                 }
             } catch (error) {
-                console.error('Error adding product:', error);
+                console.error(`Error ${isEditing ? 'updating' : 'adding'} product:`, error);
+            }
+        }
+
+        // Función para cargar los datos del producto en el formulario para editar
+        async function editProduct(productId) {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                const product = await response.json();
+
+                document.getElementById('product-id').value = product._id;
+                document.getElementById('name').value = product.name;
+                document.getElementById('category').value = product.category;
+                document.getElementById('stock').value = product.stock;
+                document.getElementById('price').value = product.price;
+
+                isEditing = true;
+                document.getElementById('form-title').innerText = 'Editar Producto';
+                document.getElementById('form-submit-button').innerText = 'Guardar Cambios';
+            } catch (error) {
+                console.error('Error fetching product:', error);
             }
         }
 
@@ -115,17 +161,11 @@
             }
         }
 
-        // Función para editar un producto
-        function editProduct(productId) {
-            // Redirige a la página de edición de producto, pasando el ID del producto como parámetro en la URL
-            window.location.href = `/edit-product.html?id=${productId}`;
-        }
-
         // Llama a la función para obtener y mostrar los productos cuando se carga la página
         window.onload = fetchProducts;
 
-        // Agrega un evento de submit al formulario para agregar un producto
-        document.getElementById('add-product-form').addEventListener('submit', addProduct);
+        // Agrega un evento de submit al formulario para agregar o editar un producto
+        document.getElementById('product-form').addEventListener('submit', handleFormSubmit);
     </script>
 </body>
 </html>
