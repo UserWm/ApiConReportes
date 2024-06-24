@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Reporte de Productos</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Productos</th>
+                <th>Categoria</th>
+                <th>Existencia</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${prodcutos.map(producto => `
+            <tr>
+                <td>{producto.producto}</td>
+                <td>{producto.categoria}</td>
+                <td>{producto.existencia}</td>
+                <td>{producto.precio.toFixed(2)}</td>
+            </tr>`).join('')}
+            <tr>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
